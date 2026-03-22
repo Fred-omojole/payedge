@@ -1,8 +1,10 @@
 <!-- BEGIN:nextjs-agent-rules -->
+
 # This is NOT the Next.js you know
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 The docs are the only source of truth.
+
 <!-- END:nextjs-agent-rules -->
 
 ---
@@ -26,17 +28,16 @@ The target audience is frontend engineers, backend engineers, product managers, 
 
 ## Tech stack
 
-| Concern | Choice |
-|---|---|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript (strict) |
-| Components | shadcn/ui |
-| Styling | Tailwind CSS |
-| Forms | React Hook Form + Zod |
+| Concern       | Choice                                 |
+| ------------- | -------------------------------------- |
+| Framework     | Next.js 16 (App Router)                |
+| Language      | TypeScript (strict)                    |
+| Components    | shadcn/ui                              |
+| Styling       | Tailwind CSS                           |
+| Forms         | React Hook Form + Zod                  |
 | State machine | useReducer (typed discriminated union) |
-| Card visual | react-credit-cards-2 |
-| Analytics | PostHog |
-| Font | Geist (sans + mono) — Next.js default |
+| Card visual   | react-credit-cards-2                   |
+| Font          | Geist (sans + mono) — Next.js default  |
 
 ---
 
@@ -65,31 +66,31 @@ All UI is derived from this single state type. You can only be in ONE state at a
 
 ```ts
 type PaymentState =
-  | 'idle'
-  | 'validating'
-  | 'creating_intent'
-  | 'retrying'
-  | 'idempotency_hit'
-  | 'confirming_payment'
-  | 'card_declined'
-  | 'creating_order'
-  | 'partial_failure'
-  | 'recovering'
-  | 'confirmed'
-  | 'hard_failure'
+  | "idle"
+  | "validating"
+  | "creating_intent"
+  | "retrying"
+  | "idempotency_hit"
+  | "confirming_payment"
+  | "card_declined"
+  | "creating_order"
+  | "partial_failure"
+  | "recovering"
+  | "confirmed"
+  | "hard_failure";
 
 type CheckoutContext = {
-  state: PaymentState
-  scenario: Scenario
-  idempotencyKey: string        // UUID v4, generated on submit, stable across retries
-  intentId: string | null
-  retryCount: number            // 0–3
-  backoffMs: number             // 1000 / 2000 / 4000
-  declineCode: DeclineCode | null
-  orderId: string | null
-  errorRef: string | null       // support reference for hard_failure / partial_failure
-  eventLog: LogEntry[]
-}
+  state: PaymentState;
+  scenario: Scenario;
+  idempotencyKey: string; // UUID v4, generated on submit, stable across retries
+  intentId: string | null;
+  retryCount: number; // 0–3
+  backoffMs: number; // 1000 / 2000 / 4000
+  declineCode: DeclineCode | null;
+  orderId: string | null;
+  errorRef: string | null; // support reference for hard_failure / partial_failure
+  eventLog: LogEntry[];
+};
 ```
 
 ### State transitions (abbreviated)
@@ -108,12 +109,12 @@ idle → validating → creating_intent → confirming_payment → creating_orde
 
 ## The four scenarios
 
-| Scenario | Failure point | Key behaviour |
-|---|---|---|
-| `happy_path` | None | Completes idle → confirmed |
-| `network_timeout` | `creating_intent` | 3 retries with exponential backoff (1s/2s/4s). Same idempotency key on every retry. Transitions to `hard_failure` after 3 failures. |
-| `card_declined` | `confirming_payment` | Returns a decline code. Form unlocks. Intent ID preserved. User retries with new card. |
-| `partial_failure` | `creating_order` | Payment confirmed by PSP, order DB write fails. Shows dual status — green confirmed + red failed. Recovery CTA retries order creation with same key. |
+| Scenario          | Failure point        | Key behaviour                                                                                                                                        |
+| ----------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `happy_path`      | None                 | Completes idle → confirmed                                                                                                                           |
+| `network_timeout` | `creating_intent`    | 3 retries with exponential backoff (1s/2s/4s). Same idempotency key on every retry. Transitions to `hard_failure` after 3 failures.                  |
+| `card_declined`   | `confirming_payment` | Returns a decline code. Form unlocks. Intent ID preserved. User retries with new card.                                                               |
+| `partial_failure` | `creating_order`     | Payment confirmed by PSP, order DB write fails. Shows dual status — green confirmed + red failed. Recovery CTA retries order creation with same key. |
 
 ---
 
@@ -123,12 +124,12 @@ The card form has THREE independent pieces that share one state object:
 
 ```ts
 const [cardState, setCardState] = useState({
-  number: '',   // formatted as "4242 4242 4242 4242"
-  name: '',
-  expiry: '',   // formatted as "08/27"
-  cvc: '',
-  focus: '',    // drives the card flip animation
-})
+  number: "", // formatted as "4242 4242 4242 4242"
+  name: "",
+  expiry: "", // formatted as "08/27"
+  cvc: "",
+  focus: "", // drives the card flip animation
+});
 ```
 
 1. **`<Cards />`** from `react-credit-cards-2` — pure display, reads state, no logic
@@ -139,12 +140,12 @@ const [cardState, setCardState] = useState({
 
 ```ts
 export const TEST_CARDS: Record<string, Scenario> = {
-  '4242 4242 4242 4242': 'happy_path',
-  '4000 0000 0000 0002': 'card_declined',
-  '4000 0000 0000 9995': 'insufficient_funds',
-  '4100 0000 0000 0019': 'partial_failure',
-  '4000 0000 0000 0119': 'network_timeout',
-}
+  "4242 4242 4242 4242": "happy_path",
+  "4000 0000 0000 0002": "card_declined",
+  "4000 0000 0000 9995": "insufficient_funds",
+  "4100 0000 0000 0019": "partial_failure",
+  "4000 0000 0000 0119": "network_timeout",
+};
 ```
 
 **IMPORTANT:** The card number is NEVER stored in the machine context, NEVER logged, NEVER sent anywhere. It is read once on submit to determine the scenario, then discarded.
@@ -169,10 +170,13 @@ All API calls are mocked. Zero real network requests. The mock reads the active 
 ```ts
 // lib/mock-api.ts
 export const mockApi = {
-  createIntent: (key: string, scenario: Scenario, delay: number) => Promise<IntentResponse>,
-  confirmPayment: (intentId: string, scenario: Scenario) => Promise<ConfirmResponse>,
-  createOrder: (intentId: string, key: string, scenario: Scenario) => Promise<OrderResponse>,
-}
+  createIntent: (key: string, scenario: Scenario, delay: number) =>
+    Promise<IntentResponse>,
+  confirmPayment: (intentId: string, scenario: Scenario) =>
+    Promise<ConfirmResponse>,
+  createOrder: (intentId: string, key: string, scenario: Scenario) =>
+    Promise<OrderResponse>,
+};
 ```
 
 The interface is identical to what a real API client would expose — swapping in real calls later requires changing only this file.
@@ -183,19 +187,19 @@ The interface is identical to what a real API client would expose — swapping i
 
 ```ts
 type LogEntry = {
-  id: string
-  timestamp: string           // ISO, e.g. "14:23:01.441"
-  type: 'STATE' | 'POST' | 'IDEM' | 'ERROR' | 'OK'
-  message: string
+  id: string;
+  timestamp: string; // ISO, e.g. "14:23:01.441"
+  type: "STATE" | "POST" | "IDEM" | "ERROR" | "OK";
+  message: string;
   meta?: {
-    idempotencyKey?: string
-    intentId?: string
-    attempt?: number
-    httpStatus?: number
-    declineCode?: string
-    errorRef?: string
-  }
-}
+    idempotencyKey?: string;
+    intentId?: string;
+    attempt?: number;
+    httpStatus?: number;
+    declineCode?: string;
+    errorRef?: string;
+  };
+};
 ```
 
 ---
