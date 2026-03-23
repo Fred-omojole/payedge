@@ -9,7 +9,7 @@ The docs are the only source of truth.
 
 ---
 
-# edgecase — AI Agent Context
+# PAYEDGE — AI Agent Context
 
 > Read this file before writing any code for this project.
 > This is the single source of truth for what this project is, how it works, and how it should look.
@@ -18,7 +18,7 @@ The docs are the only source of truth.
 
 ## What this project is
 
-**edgecase** is a developer-facing interactive payment flow simulator built with Next.js 16, TypeScript, and shadcn/ui.
+**PAYEDGE** is a developer-facing interactive payment flow simulator built with Next.js 16, TypeScript, and shadcn/ui.
 
 It is NOT a real checkout. It is an internal engineering and product tool that demonstrates how a production payment pipeline behaves across all states — including happy path, degraded states, and failure recovery.
 

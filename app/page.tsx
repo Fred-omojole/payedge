@@ -1,5 +1,7 @@
-const page = () => {
-  return <div>Hello world</div>;
-};
+"use client";
 
-export default page;
+import { Shell } from "@/components/simulator/Shell";
+
+export default function Page() {
+  return <Shell />;
+}

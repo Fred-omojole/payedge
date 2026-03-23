@@ -72,7 +72,10 @@ export interface CardState {
 
 // Action types for reducer
 export type CheckoutAction =
-  | { type: "START_VALIDATION"; payload: { scenario: Scenario } }
+  | {
+      type: "START_VALIDATION";
+      payload: { scenario: Scenario; idempotencyKey: string };
+    }
   | { type: "VALIDATION_SUCCESS" }
   | { type: "CREATE_INTENT" }
   | { type: "INTENT_SUCCESS"; payload: { intentId: string } }
@@ -82,6 +85,7 @@ export type CheckoutAction =
   | { type: "CONFIRM_PAYMENT" }
   | { type: "PAYMENT_SUCCESS" }
   | { type: "PAYMENT_DECLINED"; payload: { declineCode: DeclineCode } }
+  | { type: "RETRY_CARD"; payload: { scenario: Scenario } }
   | { type: "CREATE_ORDER" }
   | { type: "ORDER_SUCCESS"; payload: { orderId: string } }
   | { type: "ORDER_FAILURE"; payload: { errorRef: string } }
