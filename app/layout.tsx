@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,14 +26,14 @@ export const metadata: Metadata = {
     title: "Payedge — Interactive Payment Flow Simulator",
     description:
       "interactive simulator for modelling real-world payment flows across success, failure, and recovery states. Implemented a state machine-driven architecture to handle scenarios like retries, card declines, idempotency collisions, and partial failures.",
-    url: "",
-    siteName: "",
+    url: "https://payedge-omega.vercel.app/",
+    siteName: "Payedge",
     images: [
       {
-        url: "https://github.com/Fred-omojole/fred-omojole-s-folio/blob/master/assets/fredshot.png?raw=true",
+        url: "https://github.com/Fred-omojole/payedge/blob/master/assets/payedge%20cover.png?raw=true",
         width: 1200,
         height: 630,
-        alt: "Payedge — Interactive Payment Flow Si`mulator",
+        alt: "Payedge — Interactive Payment Flow Simulator",
       },
     ],
     locale: "en-US",
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
     creator: "Freddy's Space — Frontend Engineer",
     creatorId: "omoyele60762",
     images: [
-      "https://github.com/Fred-omojole/fred-omojole-s-folio/blob/master/assets/fredshot.png?raw=true",
+      "https://github.com/Fred-omojole/payedge/blob/master/assets/payedge%20cover.png?raw=true",
     ],
   },
   robots: {
@@ -62,8 +63,17 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  category:
-    "technology, portfolio, web development,frontend, developer, software, engineering",
+  category: "fintech",
+  keywords: [
+    "fintech",
+    "payment systems",
+    "developer tools",
+    "simulation",
+    "state machines",
+    "frontend systems",
+    "system design",
+    "interactive UI",
+  ],
 };
 
 export default function RootLayout({
@@ -78,6 +88,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
+      <Analytics />
     </html>
   );
 }
