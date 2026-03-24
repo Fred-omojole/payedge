@@ -13,8 +13,57 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PAYEDGE",
+  title: "Payedge — Interactive Payment Flow Simulator",
   description: "Interactive payment flow simulator",
+  icons: {
+    icon: ["/edge 1.png?v=4"],
+    shortcut: ["/edge 1.png"],
+  },
+
+  generator: "Next.js",
+  openGraph: {
+    title: "Payedge — Interactive Payment Flow Simulator",
+    description:
+      "interactive simulator for modelling real-world payment flows across success, failure, and recovery states. Implemented a state machine-driven architecture to handle scenarios like retries, card declines, idempotency collisions, and partial failures.",
+    url: "",
+    siteName: "",
+    images: [
+      {
+        url: "https://github.com/Fred-omojole/fred-omojole-s-folio/blob/master/assets/fredshot.png?raw=true",
+        width: 1200,
+        height: 630,
+        alt: "Payedge — Interactive Payment Flow Si`mulator",
+      },
+    ],
+    locale: "en-US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Payedge — Interactive Payment Flow Simulator",
+    description:
+      "interactive simulator for modelling real-world payment flows across success, failure, and recovery states. Implemented a state machine-driven architecture to handle scenarios like retries, card declines, idempotency collisions, and partial failures.",
+    creator: "Freddy's Space — Frontend Engineer",
+    creatorId: "omoyele60762",
+    images: [
+      "https://github.com/Fred-omojole/fred-omojole-s-folio/blob/master/assets/fredshot.png?raw=true",
+    ],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: false,
+      noimageindex: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  category:
+    "technology, portfolio, web development,frontend, developer, software, engineering",
 };
 
 export default function RootLayout({
