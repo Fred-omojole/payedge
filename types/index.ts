@@ -59,6 +59,7 @@ export interface CheckoutContext {
   orderId: string | null;
   errorRef: string | null; // Support reference
   eventLog: LogEntry[];
+  manualScenario: Scenario | null; // null = "auto (from card)"
 }
 
 // Card form state (NOT stored in machine context)
@@ -93,6 +94,7 @@ export type CheckoutAction =
   | { type: "RECOVERY_SUCCESS"; payload: { orderId: string } }
   | { type: "HARD_FAILURE"; payload: { errorRef: string } }
   | { type: "RESET" }
+  | { type: "SET_MANUAL_SCENARIO"; payload: { manualScenario: Scenario | null } }
   | { type: "LOG_EVENT"; payload: Omit<LogEntry, "id"> };
 
 // Mock API response types

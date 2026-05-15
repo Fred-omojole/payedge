@@ -28,6 +28,7 @@ export const INITIAL_CONTEXT: CheckoutContext = {
   orderId: null,
   errorRef: null,
   eventLog: [],
+  manualScenario: null,
 };
 
 // Helper to create log entries
@@ -54,8 +55,25 @@ export function checkoutReducer(
     case "RESET":
       return {
         ...INITIAL_CONTEXT,
+        manualScenario: context.manualScenario,
+        scenario: context.manualScenario ?? INITIAL_CONTEXT.scenario,
         eventLog: [],
       };
+
+    case "SET_MANUAL_SCENARIO": {
+      const next = action.payload.manualScenario;
+      const label = next ?? "auto";
+      return {
+        ...INITIAL_CONTEXT,
+        manualScenario: next,
+        scenario: next ?? INITIAL_CONTEXT.scenario,
+        eventLog: [
+          createLogEntry("STATE", `Scenario set to ${label}`, {
+            // Reuse the existing meta shape; no idempotency key yet at this point.
+          }),
+        ],
+      };
+    }
 
     case "START_VALIDATION": {
       const newKey = action.payload.idempotencyKey;
@@ -416,6 +434,9 @@ export function useCheckoutMachine() {
       dispatch({ type: "HARD_FAILURE", payload: { errorRef } }),
 
     reset: () => dispatch({ type: "RESET" }),
+
+    setManualScenario: (manualScenario: Scenario | null) =>
+      dispatch({ type: "SET_MANUAL_SCENARIO", payload: { manualScenario } }),
 
     logEvent: (entry: Omit<LogEntry, "id">) =>
       dispatch({ type: "LOG_EVENT", payload: entry }),

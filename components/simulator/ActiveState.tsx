@@ -8,7 +8,7 @@ import {
   OrderCreationError,
 } from "@/lib/mock-api";
 import { generateErrorRef } from "@/lib/idempotency";
-import { RETRY_CONFIG } from "@/lib/scenarios";
+import { RETRY_CONFIG, getCardFromScenario } from "@/lib/scenarios";
 import { CardForm } from "@/components/checkout/CardForm";
 import { LoadingOverlay } from "@/components/checkout/LoadingOverlay";
 import { DeclinedBanner } from "@/components/checkout/DeclinedBanner";
@@ -193,14 +193,19 @@ export function ActiveState({ context, actions, computed }: ActiveStateProps) {
   };
 
   // Handle initial form submission
-  const handleCardSubmit = (scenario: Scenario) => {
+  // Manual scenario from the topbar selector overrides whatever the card
+  // number resolves to. Card number is still read-once-and-discarded inside
+  // CardForm.handleSubmit regardless.
+  const handleCardSubmit = (scenarioFromCard: Scenario) => {
+    const scenario = context.manualScenario ?? scenarioFromCard;
     const idempotencyKey = crypto.randomUUID();
     actions.startValidation(scenario, idempotencyKey);
     runPaymentFlow(scenario, idempotencyKey);
   };
 
   // Handle retry with new card
-  const handleRetryCard = (scenario: Scenario) => {
+  const handleRetryCard = (scenarioFromCard: Scenario) => {
+    const scenario = context.manualScenario ?? scenarioFromCard;
     actions.retryCard(scenario);
     if (context.intentId) {
       runCardRetryFlow(scenario, context.intentId, context.idempotencyKey);
@@ -221,12 +226,24 @@ export function ActiveState({ context, actions, computed }: ActiveStateProps) {
     actions.reset();
   };
 
+  // Prefill card number from the topbar selector when a manual scenario is
+  // chosen. Key the form on manualScenario so it re-mounts with the new
+  // prefill when the user changes scenario.
+  const prefill = context.manualScenario
+    ? getCardFromScenario(context.manualScenario)
+    : undefined;
+  const cardFormKey = context.manualScenario ?? "auto";
+
   // Render based on current state
   switch (context.state) {
     case "idle":
       return (
         <div className="h-full flex items-center justify-center p-8">
-          <CardForm onSubmit={handleCardSubmit} />
+          <CardForm
+            key={cardFormKey}
+            onSubmit={handleCardSubmit}
+            prefillCardNumber={prefill}
+          />
         </div>
       );
 
@@ -264,7 +281,12 @@ export function ActiveState({ context, actions, computed }: ActiveStateProps) {
         <div className="h-full flex items-center justify-center p-8">
           <div className="space-y-6 w-full max-w-md">
             <DeclinedBanner declineCode={context.declineCode!} />
-            <CardForm onSubmit={handleRetryCard} intentId={context.intentId} />
+            <CardForm
+              key={cardFormKey}
+              onSubmit={handleRetryCard}
+              intentId={context.intentId}
+              prefillCardNumber={prefill}
+            />
           </div>
         </div>
       );

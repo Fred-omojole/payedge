@@ -15,6 +15,12 @@ interface CardFormProps {
   onSubmit: (scenario: Scenario) => void;
   disabled?: boolean;
   intentId?: string | null;
+  /**
+   * Optional initial card number (already digits-only or formatted).
+   * When set by the topbar scenario selector, prefills the form so the user
+   * sees the test card that matches the chosen scenario.
+   */
+  prefillCardNumber?: string;
 }
 
 // Format card number as "4242 4242 4242 4242"
@@ -32,14 +38,31 @@ function formatExpiry(value: string): string {
   return digits;
 }
 
-export function CardForm({ onSubmit, disabled, intentId }: CardFormProps) {
-  const [cardState, setCardState] = useState<CardState>({
-    number: "",
-    name: "",
-    expiry: "",
-    cvc: "",
-    focus: "",
-  });
+export function CardForm({
+  onSubmit,
+  disabled,
+  intentId,
+  prefillCardNumber,
+}: CardFormProps) {
+  // When a prefill is supplied (from the topbar scenario selector), also
+  // populate cosmetic name/expiry/cvc so the card visual is fully rendered.
+  // The card visual itself never persists outside this component.
+  const initial: CardState = prefillCardNumber
+    ? {
+        number: formatCardNumber(prefillCardNumber),
+        name: "Test User",
+        expiry: "12/30",
+        cvc: "123",
+        focus: "",
+      }
+    : {
+        number: "",
+        name: "",
+        expiry: "",
+        cvc: "",
+        focus: "",
+      };
+  const [cardState, setCardState] = useState<CardState>(initial);
 
   const handleInputChange =
     (field: keyof CardState) => (e: React.ChangeEvent<HTMLInputElement>) => {

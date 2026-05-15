@@ -5,9 +5,25 @@ import { clearIdempotencyCache } from "@/lib/mock-api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { Scenario } from "@/types";
+import { TEST_CARDS } from "@/lib/scenarios";
 import { FlowCanvas } from "./FlowCanvas";
 import { EventLog } from "./EventLog";
 import { ActiveState } from "./ActiveState";
+
+const AUTO_SCENARIO = "__auto__" as const;
+
+// Unique scenarios derived from TEST_CARDS, in card-order
+const SCENARIO_OPTIONS: Scenario[] = Array.from(
+  new Set(Object.values(TEST_CARDS)),
+);
 
 export function Shell() {
   const { context, actions, ...computed } = useCheckoutMachine();
@@ -16,6 +32,18 @@ export function Shell() {
     clearIdempotencyCache();
     actions.reset();
   };
+
+  const handleScenarioChange = (value: string | null) => {
+    const next: Scenario | null =
+      value === AUTO_SCENARIO || value === null
+        ? null
+        : (value as Scenario);
+    clearIdempotencyCache();
+    actions.setManualScenario(next);
+  };
+
+  const selectorValue = context.manualScenario ?? AUTO_SCENARIO;
+  const selectorDisabled = context.state !== "idle";
 
   return (
     <main className="min-w-[1280px] h-screen flex flex-col bg-base">
@@ -37,12 +65,35 @@ export function Shell() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-ink-2 text-sm">Scenario:</span>
-            <Badge
-              variant="outline"
-              className="font-mono text-xs bg-surface-2 border-edge text-ink"
+            <Select
+              value={selectorValue}
+              onValueChange={handleScenarioChange}
+              disabled={selectorDisabled}
             >
-              {context.scenario}
-            </Badge>
+              <SelectTrigger
+                size="sm"
+                className="font-mono text-xs bg-surface-2 border-edge text-ink hover:bg-surface-3"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-surface border-edge">
+                <SelectItem
+                  value={AUTO_SCENARIO}
+                  className="font-mono text-xs text-ink"
+                >
+                  auto (from card)
+                </SelectItem>
+                {SCENARIO_OPTIONS.map((s) => (
+                  <SelectItem
+                    key={s}
+                    value={s}
+                    className="font-mono text-xs text-ink"
+                  >
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

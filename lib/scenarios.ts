@@ -29,6 +29,22 @@ export function getScenarioFromCard(cardNumber: string): Scenario {
   return TEST_CARDS[cardNumber] || DEFAULT_SCENARIO;
 }
 
+// Inverse lookup: scenario -> first matching test card number.
+// Used by the topbar scenario selector to prefill the card form.
+export const SCENARIO_TO_CARD: Record<Scenario, string> = Object.entries(
+  TEST_CARDS,
+).reduce(
+  (acc, [card, scenario]) => {
+    if (!acc[scenario]) acc[scenario] = card;
+    return acc;
+  },
+  {} as Record<Scenario, string>,
+);
+
+export function getCardFromScenario(scenario: Scenario): string {
+  return SCENARIO_TO_CARD[scenario] ?? "";
+}
+
 // Retry backoff configuration
 export const RETRY_CONFIG = {
   maxRetries: 3,
